@@ -1,6 +1,7 @@
 import os
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 from catboost import CatBoostRegressor
 from sklearn.ensemble import (
@@ -18,9 +19,12 @@ from src.logger import logging
 
 from src.utils import save_object, evaluate_models
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
 @dataclass
 class ModelTrainerConfig:
-    trained_model_file_path = os.path.join('artifacts','model.pkl')
+    trained_model_file_path = os.path.join(str(PROJECT_ROOT), 'artifacts', 'model.pkl')
 
 class ModelTrainer:
     def __init__ (self):
@@ -147,7 +151,6 @@ class ModelTrainer:
                 file_path=self.model_trainer_config.trained_model_file_path,
                 obj=best_model
             )
-
             predicted= best_model.predict(X_test)
             r2score = r2_score(y_test, predicted)
             return r2score

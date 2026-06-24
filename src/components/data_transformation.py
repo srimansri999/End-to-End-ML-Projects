@@ -1,5 +1,7 @@
+import os
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -8,15 +10,16 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from src.exception import CustomException
 from src.logger import logging
-
-import os
-
 from src.utils import save_object
 
 class DataTransformationConfig:
-    preprocessor_obj_file_path = os.path.join('artifacts','preprocessor.pkl')
+    preprocessor_obj_file_path = os.path.join(str(PROJECT_ROOT), 'artifacts', 'preprocessor.pkl')
 
 class DataTransformation:
     def __init__(self):
@@ -104,7 +107,23 @@ class DataTransformation:
                 test_arr,
                 self.data_transformation_config.preprocessor_obj_file_path
             )
-
-
+        
         except Exception as e:
             raise CustomException(e,sys)
+
+
+if __name__ == '__main__':
+    try:
+        transformation = DataTransformation()
+        train_path = os.path.join(PROJECT_ROOT, 'artifacts', 'train.csv')
+        test_path = os.path.join(PROJECT_ROOT, 'artifacts', 'test.csv')
+
+        train_arr, test_arr, preprocessor_path = transformation.initiate_data_transformation(
+            train_path,
+            test_path
+        )
+
+        logging.info(f"Transformation completed. Preprocessor saved at {preprocessor_path}")
+        print("Transformation completed successfully")
+    except Exception as e:
+        raise CustomException(e, sys)
